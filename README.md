@@ -1,15 +1,98 @@
 # LiDAR and Satellite Archaeological Site Detection (ConvNeXt multimodal)
 
-Detects likely archaeological monument sites from multimodal raster patches
-(satellite RGB+NIR bands + 7 LiDAR-derived terrain bands) using a
-ConvNeXt-Tiny backbone adapted to 11 input channels, then turns the trained
-model's predictions into a prediction heatmap, candidate new-site list, and
-an optional 3D terrain viewer / web export.
+## Overview
+
+This project explores the use of **LiDAR-derived terrain data, Sentinel-2
+satellite imagery, and a ConvNeXt-Tiny convolutional network** to identify
+areas with archaeological potential in **Ireland**.
+
+The goal is a deep-learning pipeline that analyses multiple geospatial
+layers simultaneously — terrain geometry from LiDAR and spectral/surface
+information from satellite imagery — and predicts whether a given patch of
+ground is likely to contain an archaeological site, then turns those
+per-patch predictions into a georeferenced **archaeological probability
+heatmap** that can guide field surveys.
+
+Traditional surveys require manually inspecting large geographic regions.
+Automating the first pass over terrain and satellite characteristics lets
+that manual effort focus on the areas the model flags as most promising.
 
 The original work was developed as a single Kaggle notebook
 (`notebooks/convnext_multimodal.ipynb`). For version control and review,
 that notebook has been split cell-by-cell into a sequential pipeline of
-scripts under [`src/`](src/) — see below for how the pieces fit together.
+scripts under [`src/`](src/) — see the "Pipeline overview" / "Repo layout"
+sections below for how the pieces fit together.
+
+## Data sources
+
+### LiDAR / terrain data
+
+A high-resolution Digital Terrain Model (DTM), at roughly **1 metre per
+pixel**, captures subtle ground-elevation variation. Terrain visualisations
+derived from it can reveal structures that are hard to spot in ordinary
+satellite imagery — mounds, enclosures, earthworks, depressions, ancient
+walls, and other terrain anomalies.
+
+### Sentinel-2 satellite imagery
+
+Sentinel-2 provides Red / Green / Blue / Near-Infrared bands at roughly
+**10 metre resolution**, aligned to the LiDAR data before use.
+
+## Input channels
+
+Each patch fed to the model is an **11-channel, 200×200 pixel** GeoTIFF:
+
+| Channels | Source | Count |
+|---|---|---|
+| Red, Green, Blue, Near-Infrared | Sentinel-2 | 4 |
+| Slope, Sky-View Factor, Local Relief Model, Multi-directional Hillshade (4 directions) | DTM-derived | 7 |
+
+All channels describe the exact same patch of ground, so the network sees
+several complementary representations of each location at once — see
+[`src/00_config.py`](src/00_config.py) (`CFG.SATBANDS` / `CFG.LIDARBANDS`)
+for the exact band indices, and [`src/01_data.py`](src/01_data.py) for how
+they're loaded and normalized.
+
+## Labelling
+
+The model performs **binary classification**. Each patch is labelled:
+
+```text
+0 -> no known archaeological site  (no_site/)
+1 -> archaeological site present  (site/)
+```
+
+Known monument locations determine positive samples; areas without a
+recorded monument nearby are used as negatives. Patches already arrive
+pre-split into `train/`, `validation/`, and `test/` folders (see
+[Dataset](#dataset) below) — this repo doesn't re-split them.
+
+## Binary classification & thresholding
+
+The model outputs a single raw **logit** per patch; a sigmoid converts it
+to a probability. Rather than using a fixed 0.5 cutoff, the pipeline
+calibrates a decision threshold on the validation set (maximizing F1 via
+`precision_recall_curve`, in [`src/07_evaluate_test.py`](src/07_evaluate_test.py))
+and reuses that threshold — `bestthresh` — for the test-set benchmark and
+later for the full-area heatmap.
+
+## Evaluation
+
+Beyond standard accuracy / precision / recall / F1 / ROC-AUC / PR-AUC
+([`src/05_engine.py`](src/05_engine.py), [`src/07_evaluate_test.py`](src/07_evaluate_test.py)),
+this pipeline also checks whether the result is actually meaningful rather
+than a fluke of a small, imbalanced test set
+([`src/09_significance_tests.py`](src/09_significance_tests.py)):
+
+- **Permutation test** — shuffles test labels thousands of times to build
+  a null distribution and reports a p-value for "is the model better than
+  chance?"
+- **Bootstrap 95% confidence intervals** — resamples the test set to put
+  error bars on ROC-AUC, PR-AUC, F1, precision, and recall.
+
+Recall is treated as particularly important here: missing a real
+archaeological site is costlier than flagging an occasional false
+positive for a human to rule out.
 
 ## Pipeline overview
 
@@ -38,6 +121,10 @@ scripts under [`src/`](src/) — see below for how the pieces fit together.
                                                       optional: 3D DTM viewer,
                                                       web_export.zip for frontend
 ```
+
+Areas with high predicted probability — and in particular the candidate
+zones that have no known monument recorded nearby — are the ones worth
+prioritizing for an actual field survey.
 
 Stage → script mapping:
 
@@ -130,6 +217,21 @@ path variables.
 The trained checkpoint (`convnext_tiny_multimodal_best.pth`, ~111MB) is not
 committed here either. Training from scratch via `06_train.py` reproduces it
 (`CFG` has the exact hyperparameters used).
+
+## Technologies used
+
+* Python
+* PyTorch / torchvision — model, training loop
+* NumPy / Pandas — array and tabular data handling
+* Rasterio — reading/writing GeoTIFFs
+* GeoPandas / Shapely — vector geometry (monuments, study area, candidate sites)
+* SciPy — image filtering/smoothing for the heatmap and DTM viewer
+* scikit-learn — metrics, calibration, bootstrap/permutation testing
+* Matplotlib / Plotly — static and interactive visualization
+* Pillow — PNG export for the web bundle
+* Sentinel-2 imagery and LiDAR-derived DTMs — the underlying geospatial data
+
+See [`requirements.txt`](requirements.txt) for exact packages.
 
 ## Setup
 
