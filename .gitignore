@@ -1,0 +1,33 @@
+# Datasets (large, hosted externally — see README)
+FINALCNNDATA_200/
+FINALCNNDATA_FINAL/
+FINALCNNDATA_NEW*/
+*.zip
+
+# Model weights / checkpoints
+*.pth
+*.pt
+checkpoints/
+final_state/
+
+# Outputs
+outputs/
+*.gpkg
+*.npz
+*.pkl
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+venv/
+*.egg-info/
+
+# Jupyter
+.ipynb_checkpoints/
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
