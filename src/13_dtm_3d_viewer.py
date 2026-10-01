@@ -29,7 +29,7 @@ import plotly.graph_objects as go
 # ============================================================
 # PARAMETERS
 # ============================================================
-DTM_PATH   = Path("/kaggle/input/datasets/shreyansdeshpande/dtm_data")   # file OR folder of tiles
+DTM_PATH   = Path("/kaggle/input/datasets/shreyansdeshpande/dtmfile1234")   # file OR folder of tiles
 MAX_PIXELS = 700          # longest side of the 3D grid (500–900). Bigger = more detail, slower
 VERT_EXAG  = "auto"       # "auto" = hills clearly visible · 1 = true scale · e.g. 3, 5, 10
 AUTO_RELIEF_SHARE = 0.12  # "auto": tallest relief drawn as ~12 % of the map width
