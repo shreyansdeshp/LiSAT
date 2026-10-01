@@ -1,4 +1,4 @@
-# LiDAR Archaeological Site Detection (ConvNeXt multimodal)
+# LiDAR and Satellite Archaeological Site Detection (ConvNeXt multimodal)
 
 Detects likely archaeological monument sites from multimodal raster patches
 (satellite RGB+NIR bands + 7 LiDAR-derived terrain bands) using a
