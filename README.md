@@ -71,6 +71,22 @@ mount path, `/kaggle/input/datasets/shreyansdeshpande/200x200/FINALCNNDATA_200`,
 which is used automatically if you run the pipeline inside a Kaggle notebook
 with this dataset attached).
 
+### Other input datasets (post-training / heatmap stages)
+
+The monument-prediction, heatmap, and 3D-terrain stages (`11`–`14` in
+`src/`) read a few more Kaggle-hosted inputs:
+
+| Dataset | Used by | Kaggle-mount path in code |
+|---|---|---|
+| [`monuments`](https://www.kaggle.com/datasets/shreyansdeshpande/monuments) — known monument footprints (`monuments_inside_valid_dtm.gpkg`) | `11_predict_monuments.py`, `12_prediction_heatmap.py` | `/kaggle/input/datasets/shreyansdeshpande/monuments/monuments_inside_valid_dtm.gpkg` |
+| [`dtmfile1234`](https://www.kaggle.com/datasets/shreyansdeshpande/dtmfile1234) — raw DTM tile(s) | `13_dtm_3d_viewer.py` | `/kaggle/input/datasets/shreyansdeshpande/dtmfile1234` |
+| [`11stack`](https://www.kaggle.com/datasets/shreyansdeshpande/11stack) — the 11-band raster stack (Sky-View-Factor basemap source) | `12_prediction_heatmap.py`, `14_web_export.py` | currently hardcoded as `svfblabla` in those files — update `STUDY_AREA_PATH` to point at `/kaggle/input/datasets/shreyansdeshpande/11stack/...` once attached |
+
+As with the patches dataset, these are read directly from Kaggle's
+`/kaggle/input/` mount when run in a Kaggle notebook with the datasets
+attached; outside Kaggle, download them and update the corresponding
+path variables.
+
 ## Trained weights
 
 The trained checkpoint (`convnext_tiny_multimodal_best.pth`, ~111MB) is not
