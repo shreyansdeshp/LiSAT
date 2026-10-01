@@ -61,8 +61,15 @@ organized as:
 ```
 
 The dataset itself is **not** committed to this repo (several GB, well past
-GitHub's file-size limits). Set `CFG.ROOT` in [`src/00_config.py`](src/00_config.py)
-to wherever you've placed it locally.
+GitHub's file-size limits). It's hosted on Kaggle instead:
+
+**[kaggle.com/datasets/shreyansdeshpande/200x200](https://www.kaggle.com/datasets/shreyansdeshpande/200x200)**
+
+Download it from there and set `CFG.ROOT` in [`src/00_config.py`](src/00_config.py)
+to wherever you've placed it locally (it defaults to the Kaggle-notebook
+mount path, `/kaggle/input/datasets/shreyansdeshpande/200x200/FINALCNNDATA_200`,
+which is used automatically if you run the pipeline inside a Kaggle notebook
+with this dataset attached).
 
 ## Trained weights
 
