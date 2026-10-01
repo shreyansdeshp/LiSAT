@@ -11,6 +11,44 @@ The original work was developed as a single Kaggle notebook
 that notebook has been split cell-by-cell into a sequential pipeline of
 scripts under [`src/`](src/) — see below for how the pieces fit together.
 
+## Pipeline overview
+
+```
+ INPUT                        TRAIN                         PREDICT
+ ─────                        ─────                         ───────
+ 11-band patches      →   ConvNeXt-Tiny (11→3ch stem)  →   full-area inference
+ (4 satellite +            + focal/BCE loss                 (every patch, not
+  7 LiDAR bands,            + layer-wise LR decay             just train/val/test)
+  200×200 .tif)             + early stopping on val AUC            │
+      │                            │                               ▼
+      │                            ▼                     per-patch probability
+      │                   best checkpoint (.pth)         joined against known
+      │                    + calibrated threshold         monument footprints
+      │                                                            │
+      ▼                                                            ▼
+ train/val/test                                          PREDICTION HEATMAP
+ split (site vs.                                          (probability surface
+ no_site folders)                                          over the Sky-View-
+                                                             Factor basemap,
+                                                             confidence classes,
+                                                             candidate new sites,
+                                                             Kvamme's-gain accuracy)
+                                                                    │
+                                                                    ▼
+                                                      optional: 3D DTM viewer,
+                                                      web_export.zip for frontend
+```
+
+Stage → script mapping:
+
+| Stage | Scripts |
+|---|---|
+| Input / data loading | `00_config.py`, `01_data.py` |
+| ConvNeXt model + training | `02_model.py`, `03_losses.py`, `04_optim_utils.py`, `05_engine.py`, `06_train.py` |
+| Evaluation on held-out test set | `07_evaluate_test.py`, `08_plots.py`, `09_significance_tests.py` |
+| Full-area inference → heatmap | `11_predict_monuments.py`, `12_prediction_heatmap.py` |
+| Optional extras | `10_train_one_run.py` (ablations), `13_dtm_3d_viewer.py`, `14_web_export.py`, `15_save_final_state.py` |
+
 ## Repo layout
 
 ```
