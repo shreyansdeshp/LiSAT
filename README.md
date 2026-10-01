@@ -117,8 +117,8 @@ The monument-prediction, heatmap, and 3D-terrain stages (`11`–`14` in
 | Dataset | Used by | Kaggle-mount path in code |
 |---|---|---|
 | [`monuments`](https://www.kaggle.com/datasets/shreyansdeshpande/monuments) — known monument footprints (`monuments_inside_valid_dtm.gpkg`) | `11_predict_monuments.py`, `12_prediction_heatmap.py` | `/kaggle/input/datasets/shreyansdeshpande/monuments/monuments_inside_valid_dtm.gpkg` |
-| [`dtmfile1234`](https://www.kaggle.com/datasets/shreyansdeshpande/dtmfile1234) — raw DTM tile(s) | `13_dtm_3d_viewer.py` | `/kaggle/input/datasets/shreyansdeshpande/dtmfile1234` |
-| [`11stack`](https://www.kaggle.com/datasets/shreyansdeshpande/11stack) — the 11-band raster stack (Sky-View-Factor basemap source) | `12_prediction_heatmap.py`, `14_web_export.py` | currently hardcoded as `svfblabla` in those files — update `STUDY_AREA_PATH` to point at `/kaggle/input/datasets/shreyansdeshpande/11stack/...` once attached |
+| [`dtm_data`](https://www.kaggle.com/datasets/shreyansdeshpande/dtm_data) — raw DTM tile(s) | `13_dtm_3d_viewer.py` | `/kaggle/input/datasets/shreyansdeshpande/dtm_data` |
+| [`channel_stack`](https://www.kaggle.com/datasets/shreyansdeshpande/channel_stack) — the 11-band raster stack (Sky-View-Factor basemap source) | `12_prediction_heatmap.py`, `14_web_export.py` | NIL |
 
 As with the patches dataset, these are read directly from Kaggle's
 `/kaggle/input/` mount when run in a Kaggle notebook with the datasets
